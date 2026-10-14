@@ -123,16 +123,46 @@ target_include_directories(gui_core PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/gui/viewport
 )
 
-# 5. Desktop Application Executable
+# 5. Place Engine Library
+add_library(engine_place STATIC
+    src/engines/place/floorplanner.cpp
+    src/engines/place/floorplanner.hpp
+    src/engines/place/global_placer.cpp
+    src/engines/place/global_placer.hpp
+    src/engines/place/legalizer.cpp
+    src/engines/place/legalizer.hpp
+)
+
+target_link_libraries(engine_place PUBLIC core_db)
+target_include_directories(engine_place PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/engines/place
+)
+
+# 6. UPF Multi-Voltage Engine Library
+add_library(engine_upf STATIC
+    src/engines/upf/upf_engine.cpp
+    src/engines/upf/upf_engine.hpp
+)
+
+target_link_libraries(engine_upf PUBLIC core_db)
+target_include_directories(engine_upf PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/engines/upf
+)
+
+# 7. Desktop Application Executable
 add_executable(vlsi_soc_studio_gui
     src/gui/main.cpp
 )
 
 target_link_libraries(vlsi_soc_studio_gui PRIVATE
     gui_core
+    engine_place
+    engine_upf
 )
 
-# 6. Automated CTest Verification Suite
+# 8. Automated CTest Verification Suite
 include(CTest)
 enable_testing()
 
@@ -153,12 +183,25 @@ target_link_libraries(test_gui_headless PRIVATE
     gui_core
 )
 
+add_executable(test_place_upf
+    tests/test_place_upf.cpp
+)
+
+target_link_libraries(test_place_upf PRIVATE
+    engine_place
+    engine_upf
+    core_db
+)
+
 add_test(NAME ChipDBHierarchyTest COMMAND test_chipdb_hierarchy)
 add_test(NAME GUIHeadlessTest COMMAND test_gui_headless)
+add_test(NAME PlaceUpfTest COMMAND test_place_upf)
 
 # Ensure Qt runtime DLLs are found during CTest runs
 if(WIN32)
     set(QT_BIN_PATH "D:/Qt/6.6.3/mingw_64/bin;C:/Qt/6.6.3/mingw_64/bin;$ENV{PATH}")
     set_tests_properties(ChipDBHierarchyTest PROPERTIES ENVIRONMENT "PATH=${QT_BIN_PATH}")
     set_tests_properties(GUIHeadlessTest PROPERTIES ENVIRONMENT "PATH=${QT_BIN_PATH};QT_QPA_PLATFORM=offscreen")
+    set_tests_properties(PlaceUpfTest PROPERTIES ENVIRONMENT "PATH=${QT_BIN_PATH}")
 endif()
+

@@ -137,17 +137,17 @@ void GdsiiWriter::write_bgnstr(std::string_view cell_name) {
 }
 
 void GdsiiWriter::write_endstr() {
-    write_record_header(GdsiiRecordType::ENDSTR, GdsiiDataType::NO_DATA, 4);
+    write_record_header(GdsiiRecordType::ENDSTR, GdsiiDataType::NONE, 4);
 }
 
 void GdsiiWriter::write_endlib() {
-    write_record_header(GdsiiRecordType::ENDLIB, GdsiiDataType::NO_DATA, 4);
+    write_record_header(GdsiiRecordType::ENDLIB, GdsiiDataType::NONE, 4);
 }
 
 void GdsiiWriter::write_boundary(uint16_t layer, uint16_t datatype, const std::vector<db::Point2D>& points) {
     if (points.size() < 4) return;
 
-    write_record_header(GdsiiRecordType::BOUNDARY, GdsiiDataType::NO_DATA, 4);
+    write_record_header(GdsiiRecordType::BOUNDARY, GdsiiDataType::NONE, 4);
 
     write_record_header(GdsiiRecordType::LAYER, GdsiiDataType::INT_16, 6);
     write_int16(static_cast<int16_t>(layer));
@@ -162,7 +162,7 @@ void GdsiiWriter::write_boundary(uint16_t layer, uint16_t datatype, const std::v
         write_int32(pt.y);
     }
 
-    write_record_header(GdsiiRecordType::ENDEL, GdsiiDataType::NO_DATA, 4);
+    write_record_header(GdsiiRecordType::ENDEL, GdsiiDataType::NONE, 4);
 }
 
 void GdsiiWriter::write_box(uint16_t layer, uint16_t datatype, const db::Rect2D& box) {
@@ -178,7 +178,7 @@ void GdsiiWriter::write_box(uint16_t layer, uint16_t datatype, const db::Rect2D&
 }
 
 void GdsiiWriter::write_sref(std::string_view target_cell, db::Point2D origin, db::Orientation orient) {
-    write_record_header(GdsiiRecordType::SREF, GdsiiDataType::NO_DATA, 4);
+    write_record_header(GdsiiRecordType::SREF, GdsiiDataType::NONE, 4);
 
     uint16_t name_len = static_cast<uint16_t>(target_cell.size() + (target_cell.size() % 2));
     write_record_header(GdsiiRecordType::SNAME, GdsiiDataType::ASCII, 4 + name_len);
@@ -215,7 +215,7 @@ void GdsiiWriter::write_sref(std::string_view target_cell, db::Point2D origin, d
     write_int32(origin.x);
     write_int32(origin.y);
 
-    write_record_header(GdsiiRecordType::ENDEL, GdsiiDataType::NO_DATA, 4);
+    write_record_header(GdsiiRecordType::ENDEL, GdsiiDataType::NONE, 4);
 }
 
 bool GdsiiWriter::export_chip_db(const db::ChipDB& chip_db, const std::string& filepath) {

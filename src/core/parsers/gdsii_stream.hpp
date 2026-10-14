@@ -43,8 +43,12 @@ enum class GdsiiRecordType : uint8_t {
     BOXTYPE   = 0x2E
 };
 
+#ifdef NO_DATA
+#undef NO_DATA
+#endif
+
 enum class GdsiiDataType : uint8_t {
-    NO_DATA   = 0x00,
+    NONE      = 0x00,
     BIT_ARRAY = 0x01,
     INT_16    = 0x02,
     INT_32    = 0x03,
@@ -56,7 +60,7 @@ enum class GdsiiDataType : uint8_t {
 // Raw GDSII Record
 struct GdsiiRecord {
     GdsiiRecordType type{GdsiiRecordType::HEADER};
-    GdsiiDataType data_type{GdsiiDataType::NO_DATA};
+    GdsiiDataType data_type{GdsiiDataType::NONE};
     std::vector<uint8_t> data;
 };
 
@@ -72,12 +76,12 @@ public:
     void write_endstr();
     void write_endlib();
 
-    void write_boundary(uint16_t layer, uint16_t datatype, const std::vector<db::Point2D>& points);
-    void write_box(uint16_t layer, uint16_t datatype, const db::Rect2D& box);
-    void write_sref(std::string_view target_cell, db::Point2D origin, db::Orientation orient = db::Orientation::R0);
+    void write_boundary(uint16_t layer, uint16_t datatype, const std::vector<::soc::db::Point2D>& points);
+    void write_box(uint16_t layer, uint16_t datatype, const ::soc::db::Rect2D& box);
+    void write_sref(std::string_view target_cell, ::soc::db::Point2D origin, ::soc::db::Orientation orient = ::soc::db::Orientation::R0);
 
     // Export entire ChipDB to binary GDSII
-    static bool export_chip_db(const db::ChipDB& chip_db, const std::string& filepath);
+    static bool export_chip_db(const ::soc::db::ChipDB& chip_db, const std::string& filepath);
 
     [[nodiscard]] bool is_open() const noexcept { return m_stream.is_open(); }
     void close();
@@ -98,12 +102,12 @@ private:
 struct GdsiiBoundary {
     uint16_t layer{0};
     uint16_t datatype{0};
-    std::vector<db::Point2D> points;
+    std::vector<::soc::db::Point2D> points;
 };
 
 struct GdsiiSRef {
     std::string target_structure;
-    db::Point2D origin{0, 0};
+    ::soc::db::Point2D origin{0, 0};
     double angle{0.0};
     bool mirrored{false};
 };

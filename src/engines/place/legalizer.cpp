@@ -6,7 +6,7 @@
 
 namespace vlsi::place {
 
-DetailedLegalizer::DetailedLegalizer(soc::db::ChipDB& db, LegalizerConfig config)
+DetailedLegalizer::DetailedLegalizer(soc::db::ChipDB& db, const LegalizerConfig& config)
     : m_db(db), m_config(config) {}
 
 LegalizerStats DetailedLegalizer::legalize() {

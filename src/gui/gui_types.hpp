@@ -146,4 +146,12 @@ struct SelectionState {
     }
 };
 
+// Critical Timing Path Overlay rendered in bright orange/red
+struct TimingPathOverlay {
+    bool visible{false};
+    std::vector<db::Point2D> path_points; // Path pin coordinates
+    std::vector<db::Rect2D>  path_boxes;  // Pin/Instance bounding boxes
+    double slack_ps{0.0};
+};
+
 } // namespace soc::gui

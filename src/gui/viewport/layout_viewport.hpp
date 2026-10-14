@@ -37,6 +37,10 @@ public:
     void fit_all();
     void select_instance(db::InstanceId id);
     void highlight_net(db::NetId id);
+    void set_timing_path(const std::vector<db::Point2D>& points,
+                         const std::vector<db::Rect2D>& boxes,
+                         double slack_ps);
+    void clear_timing_path();
 
 signals:
     void instanceSelected(db::InstanceId id);
@@ -70,6 +74,7 @@ private:
     Ruler           m_ruler;
     SelectionState  m_selection;
     HeatmapMode     m_heatmap_mode{HeatmapMode::NONE};
+    TimingPathOverlay m_timing_path;
 
     std::vector<DisplayLayer> m_display_layers;
 

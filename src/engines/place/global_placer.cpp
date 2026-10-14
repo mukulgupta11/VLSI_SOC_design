@@ -6,7 +6,7 @@
 
 namespace vlsi::place {
 
-GlobalPlacer::GlobalPlacer(soc::db::ChipDB& db, GlobalPlacerConfig config)
+GlobalPlacer::GlobalPlacer(soc::db::ChipDB& db, const GlobalPlacerConfig& config)
     : m_db(db), m_config(config) {}
 
 void GlobalPlacer::init_placement_data() {

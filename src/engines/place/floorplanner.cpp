@@ -6,7 +6,7 @@
 
 namespace vlsi::place {
 
-HierarchicalFloorplanner::HierarchicalFloorplanner(soc::db::ChipDB& db, FloorplanConfig config)
+HierarchicalFloorplanner::HierarchicalFloorplanner(soc::db::ChipDB& db, const FloorplanConfig& config)
     : m_db(db), m_config(config) {}
 
 BlockEdge HierarchicalFloorplanner::determine_best_edge(const soc::db::Rect2D& block_box,

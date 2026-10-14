@@ -29,7 +29,7 @@ struct PlacerStats {
 
 class GlobalPlacer {
 public:
-    explicit GlobalPlacer(soc::db::ChipDB& db, GlobalPlacerConfig config = {});
+    explicit GlobalPlacer(soc::db::ChipDB& db, const GlobalPlacerConfig& config = {});
 
     // Execute electrostatic analytical global placement
     PlacerStats place();

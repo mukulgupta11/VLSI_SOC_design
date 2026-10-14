@@ -111,6 +111,23 @@ void LayoutViewport::highlight_net(db::NetId id) {
     update();
 }
 
+void LayoutViewport::set_timing_path(const std::vector<db::Point2D>& points,
+                                     const std::vector<db::Rect2D>& boxes,
+                                     double slack_ps) {
+    m_timing_path.visible = true;
+    m_timing_path.path_points = points;
+    m_timing_path.path_boxes = boxes;
+    m_timing_path.slack_ps = slack_ps;
+    update();
+}
+
+void LayoutViewport::clear_timing_path() {
+    m_timing_path.visible = false;
+    m_timing_path.path_points.clear();
+    m_timing_path.path_boxes.clear();
+    update();
+}
+
 void LayoutViewport::initializeGL() {
     initializeOpenGLFunctions();
 
@@ -346,6 +363,36 @@ void LayoutViewport::build_render_instances(std::vector<InstanceDrawData>& out_i
 
                 out_instances.push_back(seg_draw);
             }
+        }
+    }
+
+    // 6. Critical Path Timing Overlay (bright glowing red/orange)
+    if (m_timing_path.visible) {
+        // Draw path pin / instance boxes
+        for (const auto& box : m_timing_path.path_boxes) {
+            InstanceDrawData p_draw;
+            p_draw.x = static_cast<float>(box.x_min);
+            p_draw.y = static_cast<float>(box.y_min);
+            p_draw.w = static_cast<float>(std::max(100, box.width()));
+            p_draw.h = static_cast<float>(std::max(100, box.height()));
+            p_draw.r = 1.0f; p_draw.g = 0.22f; p_draw.b = 0.05f; p_draw.a = 0.95f; // Glowing red/orange
+            p_draw.flags = 16u; // Highlighted border
+            out_instances.push_back(p_draw);
+        }
+
+        // Draw interconnect lines connecting path pins
+        for (size_t p = 0; p + 1 < m_timing_path.path_points.size(); ++p) {
+            const auto& pt1 = m_timing_path.path_points[p];
+            const auto& pt2 = m_timing_path.path_points[p + 1];
+
+            InstanceDrawData seg_draw;
+            seg_draw.x = static_cast<float>(std::min(pt1.x, pt2.x) - 100);
+            seg_draw.y = static_cast<float>(std::min(pt1.y, pt2.y) - 100);
+            seg_draw.w = static_cast<float>(std::max(200, std::abs(pt2.x - pt1.x) + 200));
+            seg_draw.h = static_cast<float>(std::max(200, std::abs(pt2.y - pt1.y) + 200));
+            seg_draw.r = 1.0f; seg_draw.g = 0.45f; seg_draw.b = 0.0f; seg_draw.a = 0.85f;
+            seg_draw.flags = 16u;
+            out_instances.push_back(seg_draw);
         }
     }
 }

@@ -43,7 +43,7 @@ find_package(Qt6 COMPONENTS Core Gui Widgets OpenGL OpenGLWidgets REQUIRED)
 if(MSVC)
     add_compile_options(/O2 /W4 /permissive- /utf-8)
 else()
-    add_compile_options(-O3 -march=native -Wall -Wextra -Wpedantic)
+    add_compile_options(-O3 -g -march=native -mstackrealign -Wall -Wextra -Wpedantic)
     add_link_options(-static-libgcc -static-libstdc++ -Wl,-Bstatic -lwinpthread -Wl,-Bdynamic)
 endif()
 
@@ -151,7 +151,34 @@ target_include_directories(engine_upf PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/engines/upf
 )
 
-# 7. Desktop Application Executable
+# 7. Static Timing Analysis (STA) Engine Library
+add_library(engine_sta STATIC
+    src/engines/sta/timing_types.hpp
+    src/engines/sta/rc_extractor.cpp
+    src/engines/sta/rc_extractor.hpp
+    src/engines/sta/sta_engine.cpp
+    src/engines/sta/sta_engine.hpp
+)
+
+target_link_libraries(engine_sta PUBLIC core_db)
+target_include_directories(engine_sta PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/engines/sta
+)
+
+# 8. Clock Tree Synthesis (CTS) Engine Library
+add_library(engine_cts STATIC
+    src/engines/cts/cts_engine.cpp
+    src/engines/cts/cts_engine.hpp
+)
+
+target_link_libraries(engine_cts PUBLIC core_db engine_sta)
+target_include_directories(engine_cts PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/engines/cts
+)
+
+# 9. Desktop Application Executable
 add_executable(vlsi_soc_studio_gui
     src/gui/main.cpp
 )
@@ -160,9 +187,11 @@ target_link_libraries(vlsi_soc_studio_gui PRIVATE
     gui_core
     engine_place
     engine_upf
+    engine_sta
+    engine_cts
 )
 
-# 8. Automated CTest Verification Suite
+# 10. Automated CTest Verification Suite
 include(CTest)
 enable_testing()
 
@@ -193,9 +222,20 @@ target_link_libraries(test_place_upf PRIVATE
     core_db
 )
 
+add_executable(test_sta_cts
+    tests/test_sta_cts.cpp
+)
+
+target_link_libraries(test_sta_cts PRIVATE
+    engine_sta
+    engine_cts
+    core_db
+)
+
 add_test(NAME ChipDBHierarchyTest COMMAND test_chipdb_hierarchy)
 add_test(NAME GUIHeadlessTest COMMAND test_gui_headless)
 add_test(NAME PlaceUpfTest COMMAND test_place_upf)
+add_test(NAME StaCtsTest COMMAND test_sta_cts)
 
 # Set offscreen platform for headless GUI test
 set_tests_properties(GUIHeadlessTest PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")

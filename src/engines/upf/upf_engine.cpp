@@ -6,7 +6,7 @@
 
 namespace vlsi::upf {
 
-UpfEngine::UpfEngine(soc::db::ChipDB& db, UpfConfig config)
+UpfEngine::UpfEngine(soc::db::ChipDB& db, const UpfConfig& config)
     : m_db(db), m_config(config) {}
 
 soc::db::MasterCellId UpfEngine::get_or_create_master(std::string_view name,

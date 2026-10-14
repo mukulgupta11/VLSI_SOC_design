@@ -34,7 +34,7 @@ struct UpfStats {
 
 class UpfEngine {
 public:
-    explicit UpfEngine(soc::db::ChipDB& db, UpfConfig config = {});
+    explicit UpfEngine(soc::db::ChipDB& db, const UpfConfig& config = {});
 
     // Parse and establish multi-voltage power domains
     void configure_power_domains();

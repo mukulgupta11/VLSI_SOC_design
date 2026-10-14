@@ -33,7 +33,7 @@ struct LegalizerStats {
 
 class DetailedLegalizer {
 public:
-    explicit DetailedLegalizer(soc::db::ChipDB& db, LegalizerConfig config = {});
+    explicit DetailedLegalizer(soc::db::ChipDB& db, const LegalizerConfig& config = {});
 
     // Execute Abacus dynamic-programming row legalization with FinFET quantization and BSPDN keepout
     LegalizerStats legalize();

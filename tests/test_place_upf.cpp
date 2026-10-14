@@ -13,6 +13,9 @@ using namespace soc::db;
 using namespace vlsi::place;
 using namespace vlsi::upf;
 
+#if defined(__GNUC__) && defined(_WIN32)
+__attribute__((force_align_arg_pointer))
+#endif
 int main() {
     std::cout << "========================================================\n";
     std::cout << "  VLSI SoC Studio: Phase 3 Place & UPF Verification    \n";

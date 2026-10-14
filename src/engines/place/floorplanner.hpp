@@ -35,7 +35,7 @@ struct BoundaryPinBudget {
 
 class HierarchicalFloorplanner {
 public:
-    explicit HierarchicalFloorplanner(soc::db::ChipDB& db, FloorplanConfig config = {});
+    explicit HierarchicalFloorplanner(soc::db::ChipDB& db, const FloorplanConfig& config = {});
 
     // Compute floorplan layout for hierarchical block abstracts (P-Cores, E-Cores, GPU, NPU, SLC)
     bool floorplan_macros();

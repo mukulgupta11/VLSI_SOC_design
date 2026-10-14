@@ -44,7 +44,7 @@ if(MSVC)
     add_compile_options(/O2 /W4 /permissive- /utf-8)
 else()
     add_compile_options(-O3 -march=native -Wall -Wextra -Wpedantic)
-    add_link_options(-static-libgcc -static-libstdc++)
+    add_link_options(-static-libgcc -static-libstdc++ -Wl,-Bstatic -lwinpthread -Wl,-Bdynamic)
 endif()
 
 include_directories(
@@ -197,11 +197,7 @@ add_test(NAME ChipDBHierarchyTest COMMAND test_chipdb_hierarchy)
 add_test(NAME GUIHeadlessTest COMMAND test_gui_headless)
 add_test(NAME PlaceUpfTest COMMAND test_place_upf)
 
-# Ensure Qt runtime DLLs are found during CTest runs
-if(WIN32)
-    set(QT_BIN_PATH "D:/Qt/6.6.3/mingw_64/bin;C:/Qt/6.6.3/mingw_64/bin;$ENV{PATH}")
-    set_tests_properties(ChipDBHierarchyTest PROPERTIES ENVIRONMENT "PATH=${QT_BIN_PATH}")
-    set_tests_properties(GUIHeadlessTest PROPERTIES ENVIRONMENT "PATH=${QT_BIN_PATH};QT_QPA_PLATFORM=offscreen")
-    set_tests_properties(PlaceUpfTest PROPERTIES ENVIRONMENT "PATH=${QT_BIN_PATH}")
-endif()
+# Set offscreen platform for headless GUI test
+set_tests_properties(GUIHeadlessTest PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
 

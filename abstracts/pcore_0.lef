@@ -1,0 +1,25 @@
+VERSION 5.8 ;
+BUSBITCHARS "[]" ;
+DIVIDERCHAR "/" ;
+MACRO pcore_0
+  CLASS BLOCK ;
+  ORIGIN 0 0 ;
+  SIZE 1.400 BY 1.400 ;
+  SYMMETRY X Y ;
+  SITE asap7sc7p5t ;
+  PIN clk
+    DIRECTION INPUT ;
+    USE CLOCK ;
+    PORT
+      LAYER metal1 ;
+        RECT 0.020 0.060 0.060 0.180 ;
+    END
+  END clk
+  OBS
+    LAYER metal1 ;
+      RECT 0.000 0.000 1.400 1.400 ;
+    LAYER metal2 ;
+      RECT 0.000 0.000 1.400 1.400 ;
+  END
+END pcore_0
+END LIBRARY

@@ -1,0 +1,11 @@
+===================================================================
+  VLSI SoC Studio: Static Timing Analysis Signoff Report
+===================================================================
+Design Name:           apple_m_series_mini
+Clock Frequency:       3.00 GHz (Clock Period: 333.3 ps)
+Worst Negative Slack:  -2031.5 ps
+Total Negative Slack:  -9463.0 ps
+Total Timing Endpoints:63
+Max Achievable Fmax:   0.42 GHz
+Timing Signoff Status: VIOLATION
+===================================================================

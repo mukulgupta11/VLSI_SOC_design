@@ -1,0 +1,264 @@
+library (asap7sc7p5t_LVT_FF_ccs) {
+  technology (cmos);
+  delay_model : table_lookup;
+  time_unit : "1ps";
+  voltage_unit : "1V";
+  current_unit : "1mA";
+  pulling_resistance_unit : "1kohm";
+  capacitive_load_unit (1, pf);
+
+  nom_process : 1.0;
+  nom_temperature : 25.0;
+  nom_voltage : 1.15;
+
+  operating_conditions (FF_1P15V_25C) {
+    process : 1.0;
+    temperature : 25.0;
+    voltage : 1.15;
+  }
+  default_operating_conditions : FF_1P15V_25C;
+
+  lu_table_template (ccs_delay_template) {
+    variable_1 : input_net_transition;
+    variable_2 : total_output_net_capacitance;
+    index_1 ("5.0, 15.0, 30.0");
+    index_2 ("0.001, 0.010, 0.050");
+  }
+
+  cell (INV_X1) {
+    area : 0.0576;
+    pin (A) {
+      direction : input;
+      capacitance : 0.0012;
+    }
+    pin (Y) {
+      direction : output;
+      capacitance : 0.0005;
+      function : "!A";
+      timing () {
+        related_pin : "A";
+        timing_sense : negative_unate;
+        cell_rise (ccs_delay_template) {
+          values ("8.2, 12.4, 22.1", \
+                  "9.5, 14.1, 25.3", \
+                  "12.1, 18.0, 31.4");
+        }
+        cell_fall (ccs_delay_template) {
+          values ("7.8, 11.9, 20.8", \
+                  "8.9, 13.5, 23.9", \
+                  "11.4, 17.2, 29.8");
+        }
+        output_current_rise () {
+          vector ("reference_time", "0.0");
+          index_1 ("5.0, 15.0");
+          index_2 ("0.001, 0.010");
+        }
+      }
+    }
+  }
+
+  cell (NAND2_X1) {
+    area : 0.1152;
+    pin (A) {
+      direction : input;
+      capacitance : 0.0014;
+    }
+    pin (B) {
+      direction : input;
+      capacitance : 0.0013;
+    }
+    pin (Y) {
+      direction : output;
+      function : "!(A & B)";
+      timing () {
+        related_pin : "A";
+        timing_sense : negative_unate;
+        cell_rise (ccs_delay_template) {
+          values ("10.5, 15.6, 27.2", \
+                  "12.1, 17.9, 30.5", \
+                  "15.4, 22.3, 37.8");
+        }
+        cell_fall (ccs_delay_template) {
+          values ("9.8, 14.2, 25.1", \
+                  "11.2, 16.5, 28.4", \
+                  "14.1, 20.8, 35.2");
+        }
+      }
+      timing () {
+        related_pin : "B";
+        timing_sense : negative_unate;
+        cell_rise (ccs_delay_template) {
+          values ("10.2, 15.1, 26.5", \
+                  "11.8, 17.4, 29.8", \
+                  "15.0, 21.8, 36.9");
+        }
+        cell_fall (ccs_delay_template) {
+          values ("9.5, 13.8, 24.5", \
+                  "10.9, 16.0, 27.6", \
+                  "13.7, 20.2, 34.3");
+        }
+      }
+    }
+  }
+
+  cell (NOR2_X1) {
+    area : 0.1152;
+    pin (A) {
+      direction : input;
+      capacitance : 0.0015;
+    }
+    pin (B) {
+      direction : input;
+      capacitance : 0.0014;
+    }
+    pin (Y) {
+      direction : output;
+      function : "!(A | B)";
+      timing () {
+        related_pin : "A";
+        timing_sense : negative_unate;
+        cell_rise (ccs_delay_template) {
+          values ("11.2, 16.8, 29.5", \
+                  "13.0, 19.2, 33.1", \
+                  "16.5, 24.1, 40.8");
+        }
+        cell_fall (ccs_delay_template) {
+          values ("10.4, 15.1, 26.8", \
+                  "11.9, 17.5, 30.2", \
+                  "15.1, 22.1, 37.5");
+        }
+      }
+    }
+  }
+
+  cell (BUF_X4) {
+    area : 0.1728;
+    pin (A) {
+      direction : input;
+      capacitance : 0.0018;
+    }
+    pin (Y) {
+      direction : output;
+      function : "A";
+      timing () {
+        related_pin : "A";
+        timing_sense : positive_unate;
+        cell_rise (ccs_delay_template) {
+          values ("12.0, 16.5, 25.8", \
+                  "13.8, 18.9, 29.2", \
+                  "17.2, 23.5, 35.8");
+        }
+        cell_fall (ccs_delay_template) {
+          values ("11.5, 15.8, 24.9", \
+                  "13.1, 18.1, 28.1", \
+                  "16.4, 22.4, 34.5");
+        }
+      }
+    }
+  }
+
+  cell (DFF_X1) {
+    area : 0.2304;
+    ff (IQ, IQN) {
+      next_state : "D";
+      clocked_on : "CLK";
+    }
+    pin (CLK) {
+      direction : input;
+      capacitance : 0.0022;
+    }
+    pin (D) {
+      direction : input;
+      capacitance : 0.0015;
+      timing () {
+        related_pin : "CLK";
+        timing_type : setup_rising;
+        rise_constraint (ccs_delay_template) {
+          values ("15.0, 15.0, 15.0", "15.0, 15.0, 15.0", "15.0, 15.0, 15.0");
+        }
+      }
+      timing () {
+        related_pin : "CLK";
+        timing_type : hold_rising;
+        rise_constraint (ccs_delay_template) {
+          values ("5.0, 5.0, 5.0", "5.0, 5.0, 5.0", "5.0, 5.0, 5.0");
+        }
+      }
+    }
+    pin (Q) {
+      direction : output;
+      function : "IQ";
+      timing () {
+        related_pin : "CLK";
+        timing_type : rising_edge;
+        cell_rise (ccs_delay_template) {
+          values ("25.0, 32.5, 48.0", \
+                  "28.5, 36.8, 54.2", \
+                  "35.2, 45.1, 65.8");
+        }
+        cell_fall (ccs_delay_template) {
+          values ("24.2, 31.4, 46.5", \
+                  "27.6, 35.5, 52.6", \
+                  "34.1, 43.8, 63.9");
+        }
+      }
+    }
+  }
+
+  cell (LS_HL) {
+    area : 0.2304;
+    level_shifter_type : "HL";
+    pin (A) {
+      direction : input;
+      capacitance : 0.0018;
+    }
+    pin (Y) {
+      direction : output;
+      function : "A";
+      timing () {
+        related_pin : "A";
+        timing_sense : positive_unate;
+        cell_rise (ccs_delay_template) {
+          values ("18.5, 24.2, 36.5", \
+                  "21.2, 27.8, 41.5", \
+                  "26.5, 34.6, 51.2");
+        }
+        cell_fall (ccs_delay_template) {
+          values ("17.8, 23.4, 35.2", \
+                  "20.4, 26.8, 40.1", \
+                  "25.5, 33.4, 49.6");
+        }
+      }
+    }
+  }
+
+  cell (ISO_AND) {
+    area : 0.1728;
+    pin (A) {
+      direction : input;
+      capacitance : 0.0015;
+    }
+    pin (EN) {
+      direction : input;
+      capacitance : 0.0016;
+    }
+    pin (Y) {
+      direction : output;
+      function : "A & EN";
+      timing () {
+        related_pin : "A";
+        timing_sense : positive_unate;
+        cell_rise (ccs_delay_template) {
+          values ("14.2, 19.5, 30.2", \
+                  "16.3, 22.4, 34.5", \
+                  "20.4, 27.8, 42.6");
+        }
+        cell_fall (ccs_delay_template) {
+          values ("13.5, 18.6, 29.0", \
+                  "15.5, 21.3, 33.1", \
+                  "19.5, 26.5, 40.8");
+        }
+      }
+    }
+  }
+}

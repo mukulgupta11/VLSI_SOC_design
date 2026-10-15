@@ -1,0 +1,103 @@
+# ==============================================================================
+# VLSI SoC Studio — Apple-Class IEEE 1801 Unified Power Format (UPF)
+# Power Intent Specification for Multi-Voltage DVFS & Power Gating
+# ==============================================================================
+
+upf_version 3.0
+
+# ------------------------------------------------------------------------------
+# 1. Power Domains Definition
+# ------------------------------------------------------------------------------
+# High-Performance CPU Domain (1.15V Turbo)
+create_power_domain PD_PERF_1P15V \
+    -elements {u_pcore_0 u_pcore_1}
+
+# High-Efficiency Always-On SoC Domain (0.65V Low-Power)
+create_power_domain PD_EFF_0P65V \
+    -elements {u_ecore_0 u_ecore_1 u_slc u_npu} \
+    -include_scope
+
+# Switchable / Power-Gated GPU Domain (0.90V Nominal)
+create_power_domain PD_GPU_SWITCHABLE \
+    -elements {u_gpu_slice_0 u_gpu_slice_1}
+
+# ------------------------------------------------------------------------------
+# 2. Supply Ports & Supply Nets
+# ------------------------------------------------------------------------------
+create_supply_port VDD_PERF -direction in
+create_supply_port VDD_EFF  -direction in
+create_supply_port VDD_GPU  -direction in
+create_supply_port VSS      -direction in
+
+create_supply_net VDD_PERF -domain PD_PERF_1P15V
+create_supply_net VDD_EFF  -domain PD_EFF_0P65V
+create_supply_net VDD_GPU  -domain PD_GPU_SWITCHABLE
+create_supply_net VDD_GPU_GATED -domain PD_GPU_SWITCHABLE
+create_supply_net VSS      -domain PD_PERF_1P15V
+create_supply_net VSS      -domain PD_EFF_0P65V  -reuse
+create_supply_net VSS      -domain PD_GPU_SWITCHABLE -reuse
+
+connect_supply_net VDD_PERF -ports VDD_PERF
+connect_supply_net VDD_EFF  -ports VDD_EFF
+connect_supply_net VDD_GPU  -ports VDD_GPU
+connect_supply_net VSS      -ports VSS
+
+set_domain_supply_net PD_PERF_1P15V     -primary_power_net VDD_PERF      -primary_ground_net VSS
+set_domain_supply_net PD_EFF_0P65V      -primary_power_net VDD_EFF       -primary_ground_net VSS
+set_domain_supply_net PD_GPU_SWITCHABLE -primary_power_net VDD_GPU_GATED -primary_ground_net VSS
+
+# ------------------------------------------------------------------------------
+# 3. Coarse-Grain Header Power Switch Grid (Sleep Transistors)
+# ------------------------------------------------------------------------------
+create_power_switch GPU_HEADER_SW \
+    -domain PD_GPU_SWITCHABLE \
+    -input_supply_port  {in  VDD_GPU} \
+    -output_supply_port {out VDD_GPU_GATED} \
+    -control_port       {sleep_gpu sleep_gpu} \
+    -on_state           {ON  in {!sleep_gpu}} \
+    -off_state          {OFF {sleep_gpu}}
+
+# ------------------------------------------------------------------------------
+# 4. Level Shifter Insertion Strategies
+# ------------------------------------------------------------------------------
+# High-to-Low Voltage Transition: 1.15V -> 0.65V
+set_level_shifter LS_PERF_TO_EFF \
+    -domain PD_EFF_0P65V \
+    -applies_to inputs \
+    -rule high_to_low \
+    -location self
+
+# Low-to-High Voltage Transition: 0.65V -> 1.15V
+set_level_shifter LS_EFF_TO_PERF \
+    -domain PD_PERF_1P15V \
+    -applies_to inputs \
+    -rule low_to_high \
+    -location self
+
+# GPU Domain Crossing to SoC
+set_level_shifter LS_GPU_TO_EFF \
+    -domain PD_EFF_0P65V \
+    -applies_to inputs \
+    -rule high_to_low \
+    -location self
+
+# ------------------------------------------------------------------------------
+# 5. Isolation Clamp Strategies (Safe State Clamp on Power Down)
+# ------------------------------------------------------------------------------
+set_isolation ISO_GPU_OUT \
+    -domain PD_GPU_SWITCHABLE \
+    -applies_to outputs \
+    -clamp_value 0 \
+    -isolation_signal sleep_gpu \
+    -isolation_sense high \
+    -location parent
+
+# ------------------------------------------------------------------------------
+# 6. State-Retention Flip-Flop Strategies
+# ------------------------------------------------------------------------------
+set_retention RET_GPU_REG \
+    -domain PD_GPU_SWITCHABLE \
+    -retention_power_net VDD_EFF \
+    -retention_ground_net VSS \
+    -save_signal {sleep_gpu high} \
+    -restore_signal {restore_gpu high}

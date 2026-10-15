@@ -1,0 +1,240 @@
+VERSION 5.8 ;
+BUSBITCHARS "[]" ;
+DIVIDERCHAR "/" ;
+
+MACRO INV_X1
+  CLASS CORE ;
+  ORIGIN 0 0 ;
+  SIZE 0.240 BY 0.240 ;
+  SYMMETRY X Y ;
+  SITE asap7sc7p5t ;
+  PIN A
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER metal1 ;
+        RECT 0.020 0.060 0.060 0.180 ;
+    END
+  END A
+  PIN Y
+    DIRECTION OUTPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER metal1 ;
+        RECT 0.180 0.060 0.220 0.180 ;
+    END
+  END Y
+  OBS
+    LAYER metal1 ;
+      RECT 0.000 0.000 0.240 0.020 ;
+      RECT 0.000 0.220 0.240 0.240 ;
+  END
+END INV_X1
+
+MACRO NAND2_X1
+  CLASS CORE ;
+  ORIGIN 0 0 ;
+  SIZE 0.480 BY 0.240 ;
+  SYMMETRY X Y ;
+  SITE asap7sc7p5t ;
+  PIN A
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER metal1 ;
+        RECT 0.020 0.060 0.060 0.180 ;
+    END
+  END A
+  PIN B
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER metal1 ;
+        RECT 0.100 0.060 0.140 0.180 ;
+    END
+  END B
+  PIN Y
+    DIRECTION OUTPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER metal1 ;
+        RECT 0.400 0.060 0.440 0.180 ;
+    END
+  END Y
+  OBS
+    LAYER metal1 ;
+      RECT 0.000 0.000 0.480 0.020 ;
+      RECT 0.000 0.220 0.480 0.240 ;
+  END
+END NAND2_X1
+
+MACRO NOR2_X1
+  CLASS CORE ;
+  ORIGIN 0 0 ;
+  SIZE 0.480 BY 0.240 ;
+  SYMMETRY X Y ;
+  SITE asap7sc7p5t ;
+  PIN A
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER metal1 ;
+        RECT 0.020 0.060 0.060 0.180 ;
+    END
+  END A
+  PIN B
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER metal1 ;
+        RECT 0.100 0.060 0.140 0.180 ;
+    END
+  END B
+  PIN Y
+    DIRECTION OUTPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER metal1 ;
+        RECT 0.400 0.060 0.440 0.180 ;
+    END
+  END Y
+  OBS
+    LAYER metal1 ;
+      RECT 0.000 0.000 0.480 0.020 ;
+      RECT 0.000 0.220 0.480 0.240 ;
+  END
+END NOR2_X1
+
+MACRO DFF_X1
+  CLASS CORE ;
+  ORIGIN 0 0 ;
+  SIZE 0.960 BY 0.240 ;
+  SYMMETRY X Y ;
+  SITE asap7sc7p5t ;
+  PIN CLK
+    DIRECTION INPUT ;
+    USE CLOCK ;
+    PORT
+      LAYER metal1 ;
+        RECT 0.020 0.060 0.060 0.180 ;
+    END
+  END CLK
+  PIN D
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER metal1 ;
+        RECT 0.100 0.060 0.140 0.180 ;
+    END
+  END D
+  PIN Q
+    DIRECTION OUTPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER metal1 ;
+        RECT 0.880 0.060 0.920 0.180 ;
+    END
+  END Q
+  OBS
+    LAYER metal1 ;
+      RECT 0.000 0.000 0.960 0.020 ;
+      RECT 0.000 0.220 0.960 0.240 ;
+  END
+END DFF_X1
+
+MACRO BUF_X4
+  CLASS CORE ;
+  ORIGIN 0 0 ;
+  SIZE 0.720 BY 0.240 ;
+  SYMMETRY X Y ;
+  SITE asap7sc7p5t ;
+  PIN A
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER metal1 ;
+        RECT 0.040 0.060 0.080 0.180 ;
+    END
+  END A
+  PIN Y
+    DIRECTION OUTPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER metal1 ;
+        RECT 0.640 0.060 0.680 0.180 ;
+    END
+  END Y
+  OBS
+    LAYER metal1 ;
+      RECT 0.000 0.000 0.720 0.020 ;
+      RECT 0.000 0.220 0.720 0.240 ;
+  END
+END BUF_X4
+
+MACRO LS_HL
+  CLASS CORE ;
+  ORIGIN 0 0 ;
+  SIZE 0.960 BY 0.240 ;
+  SYMMETRY X Y ;
+  SITE asap7sc7p5t ;
+  PIN A
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER metal1 ;
+        RECT 0.040 0.060 0.080 0.180 ;
+    END
+  END A
+  PIN Y
+    DIRECTION OUTPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER metal1 ;
+        RECT 0.880 0.060 0.920 0.180 ;
+    END
+  END Y
+  OBS
+    LAYER metal1 ;
+      RECT 0.000 0.000 0.960 0.020 ;
+      RECT 0.000 0.220 0.960 0.240 ;
+  END
+END LS_HL
+
+MACRO ISO_AND
+  CLASS CORE ;
+  ORIGIN 0 0 ;
+  SIZE 0.720 BY 0.240 ;
+  SYMMETRY X Y ;
+  SITE asap7sc7p5t ;
+  PIN A
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER metal1 ;
+        RECT 0.040 0.060 0.080 0.180 ;
+    END
+  END A
+  PIN EN
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER metal1 ;
+        RECT 0.140 0.060 0.180 0.180 ;
+    END
+  END EN
+  PIN Y
+    DIRECTION OUTPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER metal1 ;
+        RECT 0.640 0.060 0.680 0.180 ;
+    END
+  END Y
+  OBS
+    LAYER metal1 ;
+      RECT 0.000 0.000 0.720 0.020 ;
+      RECT 0.000 0.220 0.720 0.240 ;
+  END
+END ISO_AND
+
+END LIBRARY

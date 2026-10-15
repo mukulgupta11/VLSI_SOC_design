@@ -117,15 +117,19 @@ UpfStats UpfEngine::insert_boundary_cells() {
     soc::db::MasterCellId m_ls_hl = get_or_create_master("LS_HIGH_TO_LOW", soc::db::CellType::LEVEL_SHIFTER, 480, 240);
     soc::db::MasterCellId m_iso   = get_or_create_master("ISO_CLAMP_LOW", soc::db::CellType::ISOLATION_CELL, 360, 240);
 
+    size_t initial_net_count = m_db.nets.size();
+
     // Create or find global isolation enable net
     soc::db::NetId iso_en_net = m_db.create_net("gpu_iso_en", soc::db::SignalType::SIGNAL);
 
-    size_t initial_net_count = m_db.nets.size();
-
     for (size_t net_idx = 0; net_idx < initial_net_count; ++net_idx) {
         soc::db::NetId net_id{static_cast<uint32_t>(net_idx)};
+        if (net_id == iso_en_net) continue;
         auto& net = m_db.nets[net_id];
         if (net.pins.size() < 2) continue;
+        if (net.signal_type == soc::db::SignalType::CLOCK || net.signal_type == soc::db::SignalType::RESET) continue;
+        std::string_view nname = m_db.strings.resolve(net.name_id);
+        if (nname.find("iso_en") != std::string_view::npos || nname.find("clk") != std::string_view::npos) continue;
 
         // Find driver pin (first pin by convention or output pin)
         soc::db::PinId drv_pin_id = net.pins.front();
@@ -174,8 +178,17 @@ UpfStats UpfEngine::insert_boundary_cells() {
                 std::string iso_inst_name = "ISO_" + std::string(m_db.strings.resolve(net.name_id)) +
                                            "_" + std::to_string(stats.isolation_cells_inserted);
 
+                int32_t sink_w = 480;
+                if (sink_inst.master_id.is_valid() && sink_inst.master_id.value() < m_db.master_cells.size()) {
+                    sink_w = m_db.master_cells[sink_inst.master_id].width;
+                }
+
                 soc::db::Point2D iso_pos = sink_inst.origin;
-                iso_pos.x -= 480; // place slightly before sink
+                if (iso_pos.x >= 1200) {
+                    iso_pos.x -= 900;
+                } else {
+                    iso_pos.x += sink_w + 600;
+                }
 
                 soc::db::InstanceId iso_inst = m_db.create_instance(
                     iso_inst_name, m_iso, iso_pos, soc::db::Orientation::R0, sink_domain_id);
@@ -185,7 +198,7 @@ UpfStats UpfEngine::insert_boundary_cells() {
                 soc::db::NetId iso_out_net = m_db.create_net(iso_net_name, soc::db::SignalType::SIGNAL, sink_domain_id);
 
                 // Connect ISO pins
-                soc::db::LayerId m1{1};
+                soc::db::LayerId m1{0};
                 m_db.create_pin("A", iso_inst, current_driver_net, m1, soc::db::Rect2D{20, 40, 80, 100});
                 m_db.create_pin("EN", iso_inst, iso_en_net, m1, soc::db::Rect2D{100, 40, 160, 100});
                 m_db.create_pin("Y", iso_inst, iso_out_net, m1, soc::db::Rect2D{280, 40, 340, 100});
@@ -203,8 +216,17 @@ UpfStats UpfEngine::insert_boundary_cells() {
                                            std::string(m_db.strings.resolve(net.name_id)) +
                                            "_" + std::to_string(stats.level_shifters_inserted);
 
+                int32_t sink_w = 480;
+                if (sink_inst.master_id.is_valid() && sink_inst.master_id.value() < m_db.master_cells.size()) {
+                    sink_w = m_db.master_cells[sink_inst.master_id].width;
+                }
+
                 soc::db::Point2D ls_pos = sink_inst.origin;
-                ls_pos.x -= 240;
+                if (ls_pos.x >= 1200) {
+                    ls_pos.x -= 480;
+                } else {
+                    ls_pos.x += sink_w + 100;
+                }
 
                 soc::db::InstanceId ls_inst = m_db.create_instance(
                     ls_inst_name, ls_master, ls_pos, soc::db::Orientation::R0, sink_domain_id);
@@ -214,19 +236,22 @@ UpfStats UpfEngine::insert_boundary_cells() {
                 soc::db::NetId ls_out_net = m_db.create_net(ls_out_net_name, soc::db::SignalType::SIGNAL, sink_domain_id);
 
                 // Connect LS pins
-                soc::db::LayerId m1{1};
+                soc::db::LayerId m1{0};
                 m_db.create_pin("A", ls_inst, current_driver_net, m1, soc::db::Rect2D{20, 40, 80, 100});
                 m_db.create_pin("Y", ls_inst, ls_out_net, m1, soc::db::Rect2D{400, 40, 460, 100});
 
-                // Rewire destination sink pin to post-LS net
-                sink_pin.net_id = ls_out_net;
-                m_db.nets[ls_out_net].pins.push_back(sink_pin_id);
+                current_driver_net = ls_out_net;
+                stats.level_shifters_inserted++;
+            }
+
+            // Rewire destination sink pin to the final post-ISO / post-LS net
+            if (current_driver_net != net_id) {
+                sink_pin.net_id = current_driver_net;
+                m_db.nets[current_driver_net].pins.push_back(sink_pin_id);
 
                 // Remove sink pin from original net
                 auto& old_pins = m_db.nets[net_id].pins;
                 old_pins.erase(std::remove(old_pins.begin(), old_pins.end(), sink_pin_id), old_pins.end());
-
-                stats.level_shifters_inserted++;
             }
         }
     }
@@ -257,7 +282,7 @@ uint32_t UpfEngine::insert_header_switch_grid(soc::db::PowerDomainId domain_id,
     int32_t y_step = domain.boundary.height() / (rows + 1);
 
     uint32_t switches_placed = 0;
-    soc::db::LayerId m1{1};
+    soc::db::LayerId m1{0};
 
     for (int32_t r = 1; r <= rows; ++r) {
         for (int32_t c = 1; c <= cols; ++c) {

@@ -342,9 +342,9 @@ PlacerStats GlobalPlacer::place() {
     stats.initial_hpwl = compute_hpwl();
 
     // Initial density overflow
-    std::vector<double> dummy_fx(num_cells, 0.0);
-    std::vector<double> dummy_fy(num_cells, 0.0);
-    compute_density_force(cur_x, cur_y, dummy_fx, dummy_fy, stats.initial_overflow);
+    std::vector<double> init_force_x(num_cells, 0.0);
+    std::vector<double> init_force_y(num_cells, 0.0);
+    compute_density_force(cur_x, cur_y, init_force_x, init_force_y, stats.initial_overflow);
 
     double lambda = m_config.init_lambda;
     double step_size = m_config.learning_rate;

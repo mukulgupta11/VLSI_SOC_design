@@ -131,6 +131,14 @@ struct WireSegment {
     int32_t width{0};
 };
 
+// Routed via instance connecting two layers
+struct ViaInstance {
+    LayerId bottom_layer{LayerId::invalid()};
+    LayerId top_layer{LayerId::invalid()};
+    Point2D pos{0, 0};
+    int32_t width{0};
+};
+
 // Logical / Physical Net
 struct Net {
     NetId id{NetId::invalid()};
@@ -139,6 +147,7 @@ struct Net {
     PowerDomainId power_domain_id{PowerDomainId::invalid()};
     std::vector<PinId> pins;
     std::vector<WireSegment> route_segments;
+    std::vector<ViaInstance> vias;
     double lumped_cap_pf{0.0};
 };
 

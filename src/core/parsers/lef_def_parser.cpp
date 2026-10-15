@@ -19,8 +19,8 @@ public:
         while (m_in.get(c)) {
             if (c == '#') {
                 // Comment until end of line
-                std::string dummy;
-                std::getline(m_in, dummy);
+                std::string comment_line;
+                std::getline(m_in, comment_line);
                 continue;
             }
             if (std::isspace(static_cast<unsigned char>(c))) {

@@ -79,18 +79,145 @@ target_include_directories(core_parsers PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/parsers
 )
 
-# 3. Core Scripting & Command Dispatcher Library
+# 3. Place Engine Library
+add_library(engine_place STATIC
+    src/engines/place/floorplanner.cpp
+    src/engines/place/floorplanner.hpp
+    src/engines/place/global_placer.cpp
+    src/engines/place/global_placer.hpp
+    src/engines/place/legalizer.cpp
+    src/engines/place/legalizer.hpp
+)
+
+target_link_libraries(engine_place PUBLIC core_db)
+target_include_directories(engine_place PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/engines/place
+)
+
+# 4. UPF Multi-Voltage Engine Library
+add_library(engine_upf STATIC
+    src/engines/upf/upf_engine.cpp
+    src/engines/upf/upf_engine.hpp
+)
+
+target_link_libraries(engine_upf PUBLIC core_db)
+target_include_directories(engine_upf PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/engines/upf
+)
+
+# 5. Static Timing Analysis (STA) Engine Library
+add_library(engine_sta STATIC
+    src/engines/sta/timing_types.hpp
+    src/engines/sta/rc_extractor.cpp
+    src/engines/sta/rc_extractor.hpp
+    src/engines/sta/sta_engine.cpp
+    src/engines/sta/sta_engine.hpp
+)
+
+target_link_libraries(engine_sta PUBLIC core_db)
+target_include_directories(engine_sta PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/engines/sta
+)
+
+# 6. Clock Tree Synthesis (CTS) Engine Library
+add_library(engine_cts STATIC
+    src/engines/cts/cts_engine.cpp
+    src/engines/cts/cts_engine.hpp
+)
+
+target_link_libraries(engine_cts PUBLIC core_db engine_sta)
+target_include_directories(engine_cts PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/engines/cts
+)
+
+# 7. Routing Engine Library (Global & Detailed Routing)
+add_library(engine_route STATIC
+    src/engines/route/router_types.hpp
+    src/engines/route/global_router.cpp
+    src/engines/route/global_router.hpp
+    src/engines/route/detailed_router.cpp
+    src/engines/route/detailed_router.hpp
+)
+
+target_link_libraries(engine_route PUBLIC core_db)
+target_include_directories(engine_route PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/engines/route
+)
+
+# 8. NoC & 3D-IC Packaging Engine Library
+add_library(engine_noc_3dic STATIC
+    src/engines/noc_3dic/noc_types.hpp
+    src/engines/noc_3dic/noc_compiler.cpp
+    src/engines/noc_3dic/noc_compiler.hpp
+    src/engines/noc_3dic/interposer_router.cpp
+    src/engines/noc_3dic/interposer_router.hpp
+    src/engines/noc_3dic/thermal_ir_solver.cpp
+    src/engines/noc_3dic/thermal_ir_solver.hpp
+)
+
+target_link_libraries(engine_noc_3dic PUBLIC core_db)
+target_include_directories(engine_noc_3dic PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/engines/noc_3dic
+)
+
+# 9. DRC & LVS Verification Engine Library
+add_library(engine_drc_lvs STATIC
+    src/engines/drc_lvs/drc_types.hpp
+    src/engines/drc_lvs/sweep_line_drc.cpp
+    src/engines/drc_lvs/sweep_line_drc.hpp
+    src/engines/drc_lvs/lvs_engine.cpp
+    src/engines/drc_lvs/lvs_engine.hpp
+)
+
+target_link_libraries(engine_drc_lvs PUBLIC core_db)
+target_include_directories(engine_drc_lvs PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/engines/drc_lvs
+)
+
+# 10. Autonomous RL PPA Optimizer Engine Library
+add_library(engine_rl_ppa STATIC
+    src/engines/rl_ppa/rl_types.hpp
+    src/engines/rl_ppa/ppa_agent.cpp
+    src/engines/rl_ppa/ppa_agent.hpp
+)
+
+target_link_libraries(engine_rl_ppa PUBLIC core_db)
+target_include_directories(engine_rl_ppa PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/engines/rl_ppa
+)
+
+# 11. Core Scripting & Command Dispatcher Library
 add_library(core_script STATIC
     src/core/script/command_dispatcher.cpp
     src/core/script/command_dispatcher.hpp
 )
 
-target_link_libraries(core_script PUBLIC core_parsers core_db)
+target_link_libraries(core_script PUBLIC
+    core_parsers
+    core_db
+    engine_place
+    engine_upf
+    engine_sta
+    engine_cts
+    engine_route
+    engine_noc_3dic
+    engine_drc_lvs
+    engine_rl_ppa
+)
 target_include_directories(core_script PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/script
 )
 
-# 4. GUI & Viewport Library
+# 12. GUI & Viewport Library
 add_library(gui_core STATIC
     src/gui/gui_types.hpp
     src/gui/main_window.cpp
@@ -112,6 +239,14 @@ target_link_libraries(gui_core PUBLIC
     core_script
     core_parsers
     core_db
+    engine_place
+    engine_upf
+    engine_sta
+    engine_cts
+    engine_route
+    engine_noc_3dic
+    engine_drc_lvs
+    engine_rl_ppa
     Qt6::Widgets
     Qt6::OpenGLWidgets
     opengl32
@@ -123,75 +258,30 @@ target_include_directories(gui_core PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/gui/viewport
 )
 
-# 5. Place Engine Library
-add_library(engine_place STATIC
-    src/engines/place/floorplanner.cpp
-    src/engines/place/floorplanner.hpp
-    src/engines/place/global_placer.cpp
-    src/engines/place/global_placer.hpp
-    src/engines/place/legalizer.cpp
-    src/engines/place/legalizer.hpp
-)
-
-target_link_libraries(engine_place PUBLIC core_db)
-target_include_directories(engine_place PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/engines/place
-)
-
-# 6. UPF Multi-Voltage Engine Library
-add_library(engine_upf STATIC
-    src/engines/upf/upf_engine.cpp
-    src/engines/upf/upf_engine.hpp
-)
-
-target_link_libraries(engine_upf PUBLIC core_db)
-target_include_directories(engine_upf PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/engines/upf
-)
-
-# 7. Static Timing Analysis (STA) Engine Library
-add_library(engine_sta STATIC
-    src/engines/sta/timing_types.hpp
-    src/engines/sta/rc_extractor.cpp
-    src/engines/sta/rc_extractor.hpp
-    src/engines/sta/sta_engine.cpp
-    src/engines/sta/sta_engine.hpp
-)
-
-target_link_libraries(engine_sta PUBLIC core_db)
-target_include_directories(engine_sta PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/engines/sta
-)
-
-# 8. Clock Tree Synthesis (CTS) Engine Library
-add_library(engine_cts STATIC
-    src/engines/cts/cts_engine.cpp
-    src/engines/cts/cts_engine.hpp
-)
-
-target_link_libraries(engine_cts PUBLIC core_db engine_sta)
-target_include_directories(engine_cts PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/engines/cts
-)
-
-# 9. Desktop Application Executable
-add_executable(vlsi_soc_studio_gui
+# 13. Desktop Application Executable
+add_executable(vlsi_studio_app
     src/gui/main.cpp
 )
 
-target_link_libraries(vlsi_soc_studio_gui PRIVATE
+target_link_libraries(vlsi_studio_app PRIVATE
     gui_core
+    core_script
+    core_parsers
+    core_db
     engine_place
     engine_upf
     engine_sta
     engine_cts
+    engine_route
+    engine_noc_3dic
+    engine_drc_lvs
+    engine_rl_ppa
 )
 
-# 10. Automated CTest Verification Suite
+# Legacy alias
+add_executable(vlsi_soc_studio_gui ALIAS vlsi_studio_app)
+
+# 14. Automated CTest Verification Suite
 include(CTest)
 enable_testing()
 
@@ -210,6 +300,17 @@ add_executable(test_gui_headless
 
 target_link_libraries(test_gui_headless PRIVATE
     gui_core
+    core_script
+    core_parsers
+    core_db
+    engine_place
+    engine_upf
+    engine_sta
+    engine_cts
+    engine_route
+    engine_noc_3dic
+    engine_drc_lvs
+    engine_rl_ppa
 )
 
 add_executable(test_place_upf
@@ -232,12 +333,28 @@ target_link_libraries(test_sta_cts PRIVATE
     core_db
 )
 
+add_executable(test_full_soc_flow
+    tests/test_full_soc_flow.cpp
+)
+
+target_link_libraries(test_full_soc_flow PRIVATE
+    engine_route
+    engine_noc_3dic
+    engine_drc_lvs
+    engine_rl_ppa
+    engine_place
+    engine_upf
+    engine_cts
+    engine_sta
+    core_parsers
+    core_db
+)
+
 add_test(NAME ChipDBHierarchyTest COMMAND test_chipdb_hierarchy)
 add_test(NAME GUIHeadlessTest COMMAND test_gui_headless)
 add_test(NAME PlaceUpfTest COMMAND test_place_upf)
 add_test(NAME StaCtsTest COMMAND test_sta_cts)
+add_test(NAME FullSoCFlowTest COMMAND test_full_soc_flow)
 
 # Set offscreen platform for headless GUI test
 set_tests_properties(GUIHeadlessTest PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
-
-

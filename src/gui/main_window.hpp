@@ -11,6 +11,8 @@
 #include <QMainWindow>
 #include <QDockWidget>
 #include <QLabel>
+#include <QToolBar>
+#include <QComboBox>
 
 namespace soc::gui {
 
@@ -27,6 +29,9 @@ public:
     [[nodiscard]] InspectorPanel* inspector() noexcept { return m_inspector; }
     [[nodiscard]] ScriptConsole* console() noexcept { return m_console; }
 
+    // Execute engine command and incrementally update UI
+    void run_engine_command(const QString& cmd);
+
 private:
     db::ChipDB& m_db;
     script::CommandDispatcher& m_dispatcher;
@@ -40,11 +45,16 @@ private:
     InspectorPanel*      m_inspector{nullptr};
     ScriptConsole*       m_console{nullptr};
 
+    // Toolbar
+    QToolBar*            m_toolbar{nullptr};
+    QComboBox*           m_heatmap_combo{nullptr};
+
     // Status bar labels
     QLabel* m_status_coords{nullptr};
     QLabel* m_status_ruler{nullptr};
     QLabel* m_status_stats{nullptr};
 
+    void setup_toolbar();
     void setup_docks();
     void setup_menus();
     void setup_status_bar();
